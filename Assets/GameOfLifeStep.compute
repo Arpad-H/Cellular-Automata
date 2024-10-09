@@ -1,0 +1,73 @@
+#pragma kernel GameOfLifeStep
+
+RWStructuredBuffer<int> currentGrid;
+RWStructuredBuffer<int> nextGrid;
+
+RWStructuredBuffer<float4> cubeColors;    
+RWStructuredBuffer<float4> cubePositions; 
+
+uint gridSize;
+float maxDistance;
+float3 center;
+
+[numthreads(8, 8, 8)]
+void GameOfLifeStep(uint3 id : SV_DispatchThreadID)
+{
+    int3 intId = int3(id.x, id.y, id.z); //needed in the for loop
+    
+    int idIndex = id.x + id.y * int(gridSize) + id.z * int(gridSize * gridSize);
+
+    int aliveNeighbors = 0;
+
+    // Check the 26 neighbors
+    for (int dx = -1; dx <= 1; dx++)
+    {
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dz = -1; dz <= 1; dz++)
+            {
+                if (dx == 0 && dy == 0 && dz == 0) continue;
+                int3 neighborPos = intId + int3(dx, dy, dz);
+                if (neighborPos.x >= 0 && neighborPos.x < int(gridSize) &&
+                    neighborPos.y >= 0 && neighborPos.y < int(gridSize) &&
+                    neighborPos.z >= 0 && neighborPos.z < int(gridSize))
+                {
+                    int neighborIndex = neighborPos.x + neighborPos.y * int(gridSize) + neighborPos.z * int(gridSize * gridSize);
+                    int neighborState = currentGrid[neighborIndex];
+                    aliveNeighbors += neighborState;
+                }
+            }
+        }
+    }
+
+    int currentState = currentGrid[idIndex];
+    //TODO deal with the edges having alot less neighbors
+    // Apply rules
+    int newState;
+    if (currentState == 1 && (aliveNeighbors < 9 || aliveNeighbors > 15 ))
+    {
+        newState = 0;
+    }
+    else if (currentState == 0 && (aliveNeighbors >= 9 && aliveNeighbors <= 16 ))
+    {
+        newState = 1;
+    }
+
+    else
+    {
+        newState = currentState;
+    }
+    nextGrid[idIndex] = newState;
+
+    if (newState == 1)
+    {
+        
+        cubeColors[idIndex] = float4(intId.x / maxDistance, intId.y / maxDistance, intId.z / maxDistance,1);
+        //cubeColors[idIndex] = float4(1,1,1,1);
+    }
+    else
+    {
+        cubeColors[idIndex] = float4(0,0,0,0);
+    }
+    cubePositions[idIndex] = float4(id.x, id.y, id.z, 1);
+}
