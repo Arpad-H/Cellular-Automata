@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 496825891}
-  distance: 100
+  distance: 150
   orbitSpeed: 15
   height: 0
   gridSize: 0
@@ -427,8 +427,8 @@ MonoBehaviour:
   gameOfLifeComputeShader: {fileID: 7200000, guid: b976d17c30bc05e47acbac92453b6b6c,
     type: 3}
   instancedMaterial: {fileID: 2100000, guid: 2804f2c9af8d92c4e894727a26f1264b, type: 2}
-  cubeMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  gridSize: 32
+  cubeMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  gridSize: 64
   simulationDelay: 0.1
 --- !u!4 &496825891
 Transform:

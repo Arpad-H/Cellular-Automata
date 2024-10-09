@@ -17,19 +17,20 @@ public class GameOfLifeSystem : MonoBehaviour
     private ComputeBuffer currentGridBuffer;
     private ComputeBuffer nextGridBuffer;
 
-    public int gridSize = 64; // Adjust grid size as needed
+    public int gridSize = 64; 
     private int kernelHandle;
 
     private int[] currentGrid;
     private int[] nextGrid;
 
 
-    public float simulationDelay = 0.5f; // Time in seconds between each update
+    public float simulationDelay = 0.5f; 
     private float timeSinceLastUpdate;
 
     void Start()
     {
         timeSinceLastUpdate = 0; //to skip the first delay wait time
+        
         // Initialize buffers
         int totalCells = gridSize * gridSize * gridSize;
         cubeColorBuffer = new ComputeBuffer(totalCells, sizeof(float) * 4);
@@ -37,7 +38,7 @@ public class GameOfLifeSystem : MonoBehaviour
         currentGridBuffer = new ComputeBuffer(totalCells, sizeof(int));
         nextGridBuffer = new ComputeBuffer(totalCells, sizeof(int));
 
-        // Initialize cell states (random alive or dead)
+        // Initialize cell states
         currentGrid = new int[totalCells];
         nextGrid = new int[totalCells];
         for (int i = 0; i < totalCells; i++)
@@ -69,7 +70,7 @@ public class GameOfLifeSystem : MonoBehaviour
         // sim step timer
         if (timeSinceLastUpdate >= simulationDelay)
         {
-            // Dispatch compute shader
+           
             gameOfLifeComputeShader.Dispatch(kernelHandle, gridSize / 8, gridSize / 8, gridSize / 8);
 
             // Swap buffers
@@ -82,7 +83,7 @@ public class GameOfLifeSystem : MonoBehaviour
             gameOfLifeComputeShader.SetBuffer(kernelHandle, "nextGrid", nextGridBuffer);
 
 
-            // Pass the buffers to the instanced material
+            // Pass the buffers to the instanced material and vertex / fragment shader
             instancedMaterial.SetBuffer("instanceColors", cubeColorBuffer);
             instancedMaterial.SetBuffer("instancePositions", cubePositionBuffer);
 
@@ -90,10 +91,10 @@ public class GameOfLifeSystem : MonoBehaviour
         }
         int[] test = new int[gridSize * gridSize * gridSize];
         cubePositionBuffer.GetData(test);
+        
         // Draw cubes using instancing
         Graphics.RenderMeshPrimitives(new RenderParams(instancedMaterial), cubeMesh, 0,
             cubePositionBuffer.count);
-        // Draw the cubes using instancing, now using per-instance position and color
         //Graphics.DrawMeshInstanced(cubeMesh, 0, instancedMaterial, new Matrix4x4[gridSize * gridSize * gridSize], gridSize * gridSize * gridSize);
     }
 

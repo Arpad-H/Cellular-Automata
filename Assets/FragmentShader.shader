@@ -47,11 +47,10 @@ Shader "Custom/InstancedColorShader"
             {
                 v2f o;
 
-                // Get the instance's position and color from the buffer
+               
                 float4 worldPos = instancePositions[instanceID];
                 float4 instanceColor = instanceColors[instanceID];
-
-                // Transform cube vertex based on instance position
+                
                 if (instanceColor.a == 1)
                 {
                      o.pos = UnityObjectToClipPos(v.vertex + worldPos);
@@ -60,11 +59,9 @@ Shader "Custom/InstancedColorShader"
                 {
                     o.pos = UnityObjectToClipPos(v.vertex + worldPos + float4(11110, 11110, 11110, 10));
                 }
-               
-
-                // Pass instance color to fragment shader
+                
                 o.color = instanceColor;
-                return o;
+                return o; //gets passed to frag
             }
 
             // Fragment shader
