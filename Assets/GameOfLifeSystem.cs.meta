@@ -3,7 +3,11 @@ guid: b5b4facbda1d5db4c8918cf11e03a767
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - gameOfLifeComputeShader: {fileID: 7200000, guid: b976d17c30bc05e47acbac92453b6b6c,
+      type: 3}
+  - instancedMaterial: {instanceID: 0}
+  - cubeMesh: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

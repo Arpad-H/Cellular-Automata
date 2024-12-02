@@ -1,0 +1,111 @@
+#pragma kernel AccretorCompute
+
+RWStructuredBuffer<int> currentGrid;
+RWStructuredBuffer<int> nextGrid;
+
+RWStructuredBuffer<float4> cubeColors;
+RWStructuredBuffer<float4> cubePositions;
+
+uint gridSize;
+float maxDistance;
+float3 center;
+
+int rules[] = { 1, 3, 7, 4 };
+
+[numthreads(8, 8, 8)]
+void AccretorCompute(uint3 id : SV_DispatchThreadID)
+{
+    int3 intId = int3(id.x, id.y, id.z);
+
+    int idIndex = id.x + id.y * int(gridSize) + id.z * int(gridSize * gridSize);
+
+    int cellState = currentGrid[idIndex];
+    int newState = cellState;
+
+    // Only process empty cells
+    if (cellState == 0)
+    {
+        int faceCount = 0;
+        int edgeCount = 0;
+        int cornerCount = 0;
+
+        // Check face neighbors
+        int3 faceOffsets[6] = {
+            int3(0, 0, -1), int3(0, 0, 1), 
+            int3(0, -1, 0), int3(0, 1, 0), 
+            int3(-1, 0, 0), int3(1, 0, 0)
+        };
+        for (int i = 0; i < 6; i++)
+        {
+            int3 neighborPos = (intId + faceOffsets[i] + gridSize) % gridSize;
+            int neighborIndex = neighborPos.x + neighborPos.y * int(gridSize) + neighborPos.z * int(gridSize * gridSize);
+            if (currentGrid[neighborIndex] > 0) faceCount++;
+        }
+
+        // Only process further if faceCount > 0
+        if (faceCount > 0)
+        {
+            // Check edge neighbors
+            int3 edgeOffsets[12] = {
+                int3(0, -1, -1), int3(-1, 0, -1), int3(1, 0, -1), int3(0, 1, -1),
+                int3(-1, -1, 0), int3(1, -1, 0), int3(-1, 1, 0), int3(1, 1, 0),
+                int3(0, -1, 1), int3(-1, 0, 1), int3(1, 0, 1), int3(0, 1, 1)
+            };
+            for (int i = 0; i < 12; i++)
+            {
+                int3 neighborPos = (intId + edgeOffsets[i] + gridSize) % gridSize;
+                int neighborIndex = neighborPos.x + neighborPos.y * int(gridSize) + neighborPos.z * int(gridSize * gridSize);
+                if (currentGrid[neighborIndex] > 0) edgeCount++;
+            }
+
+            // Check corner neighbors
+            int3 cornerOffsets[8] = {
+                int3(-1, -1, -1), int3(1, -1, -1), int3(-1, 1, -1), int3(1, 1, -1),
+                int3(-1, -1, 1), int3(1, -1, 1), int3(-1, 1, 1), int3(1, 1, 1)
+            };
+            for (int i = 0; i < 8; i++)
+            {
+                int3 neighborPos = (intId + cornerOffsets[i] + gridSize) % gridSize;
+                int neighborIndex = neighborPos.x + neighborPos.y * int(gridSize) + neighborPos.z * int(gridSize * gridSize);
+                if (currentGrid[neighborIndex] > 0) cornerCount++;
+            }
+
+            // Update cell state based on rule table
+            if (faceCount == rules[1] || edgeCount == rules[2] || cornerCount == rules[3])
+            {
+                newState = 1;
+            }
+           
+        }
+    }
+
+    // Write the new state to the next grid
+    nextGrid[idIndex] = newState;
+
+
+    switch (newState)
+    {
+    case 4:
+        cubeColors[idIndex] = float4(1, 1, 0, 1);
+        break;
+    case 3:
+        cubeColors[idIndex] = float4(1, 0.45, 0, 1);
+        break;
+    case 2:
+        cubeColors[idIndex] = float4(1, 0, 0, 1);
+        break;
+    case 1:
+        cubeColors[idIndex] = float4(0.5, 0, 0, 1);
+        break;
+    case 0:
+        cubeColors[idIndex] = float4(0, 0, 0, 0);
+        break;
+    default:
+        cubeColors[idIndex] = float4(0, 0, 0, 0);
+        break;
+    }
+
+
+    nextGrid[idIndex] = newState;
+    cubePositions[idIndex] = float4(id.x, id.y, id.z, 1);
+}

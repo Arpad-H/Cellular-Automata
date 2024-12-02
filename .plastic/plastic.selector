@@ -1,4 +1,0 @@
-repository "Cellular Automata@horvaarpad@cloud"
-  path "/"
-    br "/main"
-    co "/main"

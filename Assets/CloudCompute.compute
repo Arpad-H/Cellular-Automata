@@ -1,0 +1,79 @@
+#pragma kernel CloudCompute
+
+RWStructuredBuffer<int> currentGrid;
+RWStructuredBuffer<int> nextGrid;
+
+RWStructuredBuffer<float4> cubeColors;
+RWStructuredBuffer<float4> cubePositions;
+
+uint gridSize;
+float maxDistance;
+float3 center;
+
+[numthreads(8, 8, 8)]
+void CloudCompute(uint3 id : SV_DispatchThreadID)
+{
+    int3 intId = int3(id.x, id.y, id.z);
+
+    int idIndex = id.x + id.y * int(gridSize) + id.z * int(gridSize * gridSize);
+
+    int aliveNeighbors = 0;
+
+    // Check neighbors
+    for (int dx = -1; dx <= 1; dx++)
+    {
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dz = -1; dz <= 1; dz++)
+            {
+                if (dx == 0 && dy == 0 && dz == 0) continue;
+
+                int3 neighborPos = intId + int3(dx, dy, dz);
+                neighborPos.x = (neighborPos.x + gridSize) % gridSize; // Wrap x
+                neighborPos.y = (neighborPos.y + gridSize) % gridSize; // Wrap y
+                neighborPos.z = (neighborPos.z + gridSize) % gridSize; // Wrap z
+
+                    int neighborIndex = neighborPos.x + neighborPos.y * int(gridSize) + neighborPos.z * int(
+                        gridSize * gridSize);
+                    int neighborState = currentGrid[neighborIndex];
+                    if (neighborState ==1) aliveNeighbors++;
+                
+            }
+        }
+    }
+
+    int currentState = currentGrid[idIndex];
+    
+    // Apply rules
+    int newState;
+    if (currentState == 1) // Survival
+    {
+        newState = (aliveNeighbors >=13 && aliveNeighbors <=26 ) ? 1 : 0;
+    }
+    else if (currentState == 0) // Birth
+    {
+        newState = (aliveNeighbors == 13 || aliveNeighbors == 14 || aliveNeighbors == 17 || aliveNeighbors == 18 || aliveNeighbors == 19) ? 1 : 0; 
+    }
+    else
+    {
+        newState = 0; 
+    }
+    
+    switch (newState)
+    {
+    case 1:
+        float3 color = normalize(intId);
+        cubeColors[idIndex] = float4(color, 1);
+        break;
+    case 0:
+        cubeColors[idIndex] = float4(0, 0, 0, 0);
+        break;
+    default:
+        cubeColors[idIndex] = float4(0, 0, 0, 0);
+        break;
+    }
+
+
+    nextGrid[idIndex] = newState;
+    cubePositions[idIndex] = float4(id.x, id.y, id.z, 1);
+}
