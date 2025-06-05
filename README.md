@@ -30,4 +30,7 @@ Either modify existing Compute Shaders, or write a custom one. Make sure to defi
 - Rule editor UI
 - Easier modular use rather than having to modify GameOfLifeSystem.cs
 
+# Author 
+Arpad Horvath
+
 
