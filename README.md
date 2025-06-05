@@ -20,7 +20,7 @@ A modular and extensible **Cellular Automata** simulator that lets you explore c
 # Video
 Availabled under: https://youtu.be/7Mk8jjHKN0o
 # Usage
-<pre lang="md"> ```cpp RWStructuredBuffer&lt;int&gt; currentGrid; RWStructuredBuffer&lt;int&gt; nextGrid; RWStructuredBuffer&lt;float4&gt; cubeColors; RWStructuredBuffer&lt;float4&gt; cubePositions; uint gridSize; float maxDistance; float3 center; ``` </pre>
+ ```cpp RWStructuredBuffer&lt;int&gt; currentGrid; RWStructuredBuffer&lt;int&gt; nextGrid; RWStructuredBuffer&lt;float4&gt; cubeColors; RWStructuredBuffer&lt;float4&gt; cubePositions; uint gridSize; float maxDistance; float3 center; ```
 
 Either modify existing Compute Shaders, or write a custom one. Make sure to define these fields in the shader. For the structure of the shader refer to the provided shaders. Right now youll have to populate the shader in the GameOfLife.cs. This will be changed for modularitys sake in the future Update. 
 
