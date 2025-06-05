@@ -1,4 +1,6 @@
+
 # Cellular Automata
+This project was created for the module "Orientierung und Methoden" at the Hochschule Osnabrück
 A modular and extensible **Cellular Automata** simulator that lets you explore complex systems from simple rules. This project comes with some predefined custom rule sets and lets you practrice writing custom compute shaders.
 
 ##  Features
